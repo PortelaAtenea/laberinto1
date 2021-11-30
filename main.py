@@ -8,6 +8,9 @@ VERDE = (0, 255, 0)
 ROJO = (255, 0, 0)
 VIOLETA = (255, 0, 255)
 
+pygame.init()
+
+pantalla = pygame.display.set_mode([800, 600])
 
 class Pared(pygame.sprite.Sprite):
 
@@ -34,7 +37,7 @@ class Protagonista(pygame.sprite.Sprite):#Funcion constructora del cuadrado con 
         super().__init__()
 
         self.image = pygame.Surface([15, 15])#Creamos un cuadrado que sera el prota
-        self.image.fill(BLANCO)
+        self.image.fill(NEGRO)
 
         self.rect = self.image.get_rect()
         self.rect.y = y
@@ -92,18 +95,40 @@ class Cuarto1(Cuarto):
         # Crear las paredes. (x_pos, y_pos, ancho, alto)
 
         # Esta es la lista de las paredes. Cada una se especifica de la forma [x, y, largo, alto]
-        paredes = [[0, 0, 20, 250, BLANCO],
-                   [0, 350, 20, 250, BLANCO],
-                   [780, 0, 20, 250, BLANCO],
-                   [780, 350, 20, 250, BLANCO],
-                   [20, 0, 760, 20, BLANCO],
-                   [20, 580, 760, 20, BLANCO],
-                   [100, 80, 20, 500, AZUL],
-                   [150, 20, 20, 500, AZUL],
-                   [200, 80, 20, 500, AZUL],
-                   [250, 20, 20, 500, AZUL],
-                   [300, 80, 20, 500, AZUL],
-                   [100, 80, 500, 20, AZUL]]
+        paredes = [[0, 0, 20, 580, AZUL],
+                   [0, 350, 20, 250, AZUL],
+                   [780, 0, 20, 250, AZUL],
+                   [780, 350, 20, 250, AZUL],
+                   [20, 0, 760, 20, AZUL],
+                   [20, 580, 760, 20, AZUL],
+                   [100, 20, 20, 60, AZUL],  #1
+                   [100, 140, 160, 20, AZUL],  # 2
+                   [240, 80, 20, 60, AZUL],  #3
+                   [240, 80, 210, 20, AZUL],  # 4
+                   [240, 140, 20, 300, AZUL],  #5
+                   [0, 240, 150, 20, AZUL],  #6
+                   [150, 240, 20, 100, AZUL],  #7
+                   [70, 340, 100, 20, AZUL],  # 8
+                   [70, 420, 170, 20, AZUL],  # 9
+                   [160, 420, 20, 200, AZUL],  # 10
+                   [0, 500, 100, 20, AZUL],  # 11
+                   [450, 160, 400, 20, AZUL],  # 12
+                   [450, 160, 20, 100, AZUL],  # 13
+                   [350, 240, 100, 20, AZUL],  # 14
+                   [350, 240, 20, 200, AZUL],  # 15
+                   [160, 500, 200, 20, AZUL],  # 16
+                   [350, 80, 20, 100, AZUL],  # 17
+                   [450, 350, 400, 20, AZUL],  # 18
+                   [550, 260, 20, 260, AZUL],  # 19
+                   [650, 160, 20, 120, AZUL],  # 20
+                   [650, 450, 200, 20, AZUL],  # 21
+                   [450, 450, 20, 200, AZUL],  # 22
+                   [350, 80, 20, 100, AZUL],  # 17
+
+
+
+
+                   ]
 
 
         # Iteramos a través de la lista. Creamos la pared y la añadimos a la lista.
@@ -118,14 +143,15 @@ class Cuarto2(Cuarto):
     def __init__(self):
         super().__init__()
 
-        paredes = [[0, 0, 20, 250, ROJO],
+        caldero = pygame.image.load("img/caldero/caldero1.png").convert_alpha()
+        pantalla.blit(caldero, (500, 500))
+        pygame.display.flip()
+        paredes = [[0, 0, 20, 255, ROJO],
                    [0, 350, 20, 250, ROJO],
                    [780, 0, 20, 250, ROJO],
                    [780, 350, 20, 250, ROJO],
                    [20, 0, 760, 20, ROJO],
-                   [20, 580, 760, 20, ROJO],
-                   [190, 50, 20, 500, VERDE],
-                   [590, 50, 20, 500, VERDE]
+                   [20, 580, 760, 20, ROJO]
                    ]
 
         for item in paredes:
@@ -162,9 +188,7 @@ class Cuarto3(Cuarto):
 
 
 def main():
-    pygame.init()
 
-    pantalla = pygame.display.set_mode([800, 600])
 
 
     pygame.display.set_caption('Laberinto Principal')
@@ -255,7 +279,7 @@ def main():
                 protagonista.rect.x = 0
 
         # --- Dibujamos ---
-        pantalla.fill(NEGRO)
+        pantalla.fill(BLANCO)
 
         desplazarsprites.draw(pantalla)
         cuarto_actual.pared_lista.draw(pantalla)
