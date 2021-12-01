@@ -35,3 +35,15 @@ def laberinto1():
                 ]
 
     return paredes
+
+
+class Caldero(pygame.sprite.Sprite):
+    def __init__(self, x, y, scale):
+        pygame.sprite.Sprite.__init__(self)
+        img = pygame.image.load('img/caldero/caldera.png')
+        self.image = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))
+        self.rect = self.image.get_rect()
+        self.rect.y = 450
+        self.rect.x = 450
+    def draw(self):
+        pantalla.blit(self.image, self.rect)
