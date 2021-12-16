@@ -14,6 +14,7 @@ pygame.init()
 
 # Definicion de tipo de letra
 small_font = pygame.font.SysFont('Corbel', 35)
+small2_font = pygame.font.SysFont('Corbel', 20)
 
 pantalla = pygame.display.set_mode([800, 600])
 
@@ -21,10 +22,29 @@ pygame.display.set_caption('Laberinto Principal')
 
 salir = small_font.render('Salir', True, white)
 jugar = small_font.render('Jugar', True, white)
+def cargarImages():
+    img = []
+    img.append(pygame.image.load("img/caldero/caldera.png"))
+    return img
 
 class Moneda:
     def __init__(self,x,y):
         img = pygame.image.load('img/monedas/moneda.png')
+        scale = 0.05
+        self.x = x
+        self.y = y
+
+        self.image = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+    def draw(self):
+        self.rect.topleft = (self.x,self.y)
+        pantalla.blit(self.image, self.rect)
+
+
+class Caldero:
+    def __init__(self,x,y):
+        img = pygame.image.load('img/caldero/caldera.png')
         scale = 0.05
         self.x = x
         self.y = y
@@ -62,13 +82,11 @@ class Protagonista(pygame.sprite.Sprite):  # Funcion constructora del cuadrado c
         img = pygame.image.load('img/mago/0.png')
         scale = 0.05
 
-        self.image = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))
-        self.rect = self.image.get_rect()
+
+        self.image = pygame.Surface([15, 15])#Creamos un cuadrado que sera el prota
+        self.image.fill(NEGRO)
 
         self.rect = self.image.get_rect()
-        self.rect.y = y
-        self.rect.x = x
-
         pantalla.blit(self.image, self.rect)
 
     def cambiovelocidad(self, x, y):  # Cambia de velocidad con pulsar el teclado
@@ -174,16 +192,16 @@ class Cuarto2(Cuarto):
                    [780, 0, 20, 250, ROJO],
                    [780, 350, 20, 250, ROJO],
                    [20, 0, 760, 20, ROJO],
-                   [20, 580, 760, 20, ROJO]
+                   [20, 580, 760, 20, ROJO],  # 15
+                   [160, 500, 200, 20, AZUL]
                    ]
 
         for item in paredes:
             pared = Pared(item[0], item[1], item[2], item[3], item[4])
             self.pared_lista.add(pared)
 
-        #caldero = Caldero(200, 200, 0.1)
 
-        #self.pared_lista.add(caldero)
+
 
 
 class Cuarto3(Cuarto):
@@ -196,12 +214,16 @@ class Cuarto3(Cuarto):
                    [780, 0, 20, 250, VIOLETA],  # raya de arriba derecha
                    [780, 350, 20, 250, VIOLETA],  # raya de abajo derecha
                    [20, 0, 760, 20, VIOLETA],  # Raya de arriba de la pantalla
-                   [20, 580, 760, 20, VIOLETA]  # Raya de abajo de la pantalla
+                   [20, 580, 760, 20, VIOLETA] ,  # 15
+                   [160, 500, 200, 20, AZUL] # Raya de abajo de la pantalla
                    ]
         # x, y, largo, alto
         for item in paredes:
             pared = Pared(item[0], item[1], item[2], item[3], item[4])
             self.pared_lista.add(pared)
+        caldero =Caldero(500,500)
+        caldero.draw()
+
 
 
 def main():
@@ -258,9 +280,10 @@ def main():
 def lab1():
     protagonista = Protagonista(50, 50)  # Creamos un protagonista
     monedas = [
-        Moneda(25, 150),Moneda(250, 250),Moneda(250, 250),Moneda(250, 250),Moneda(250, 250),Moneda(250, 250),Moneda(250, 250),Moneda(250, 250),Moneda(250, 250),Moneda(250, 250),
-        Moneda(250, 250),Moneda(250, 250),Moneda(250, 250),Moneda(250, 250),Moneda(250, 250),Moneda(250, 250),Moneda(250, 250), Moneda(250, 250),Moneda(250, 250),Moneda(250, 250),Moneda(250, 250),Moneda(250, 250),Moneda(250, 250),Moneda(250, 250)
-    ]#hay 24 monedas
+        Moneda(25, 150),Moneda(260, 250),Moneda(350,23),Moneda(500, 40),Moneda(500, 250),Moneda(400, 400),Moneda(700, 300),Moneda(275, 450),
+        Moneda(100, 100),Moneda(600, 100)
+
+    ]#hay 10 monedas
 
 
     desplazarsprites = pygame.sprite.Group()
@@ -314,41 +337,78 @@ def lab1():
         protagonista.mover(cuarto_actual.pared_lista)
 
         if protagonista.rect.x > 801:  # se mueve hacia la derecha
-            if cuarto_actual_no == 0:
-                cuarto_actual_no = 1
-                cuarto_actual = cuartos[cuarto_actual_no]
+            #Comprobar si la puntuacion es mayor a 5
+            if puntuacion > 4:
+                if cuarto_actual_no == 0:
+                    cuarto_actual_no = 1
+                    cuarto_actual = cuartos[cuarto_actual_no]
 
 
-            elif cuarto_actual_no == 1:
-                cuarto_actual_no = 2
-                cuarto_actual = cuartos[cuarto_actual_no]
-                protagonista.rect.x = 0
+
+                elif cuarto_actual_no == 1:
+                    cuarto_actual_no = 2
+                    cuarto_actual = cuartos[cuarto_actual_no]
+                    protagonista.rect.x = 0
+                    for i in range(len(monedas) - 1, -1, -1):
+                        del monedas[i]
+                    caldero=Caldero(200, 200)
+                    caldero.draw()
+                    imgs = cargarImages()
+
+                    inicializar_datos
+                else:
+                    cuarto_actual_no = 0
+                    cuarto_actual = cuartos[cuarto_actual_no]
+                    protagonista.rect.x = 0
             else:
-                cuarto_actual_no = 0
-                cuarto_actual = cuartos[cuarto_actual_no]
-                protagonista.rect.x = 0
+                if cuarto_actual_no == 0:
+                    cuarto_actual_no = 0
+                    cuarto_actual = cuartos[cuarto_actual_no]
+                    protagonista.rect.x = 25
+                    protagonista.rect.x = 25
+
+
+
+                elif cuarto_actual_no == 1:
+                    cuarto_actual_no = 1
+                    cuarto_actual = cuartos[cuarto_actual_no]
+                    protagonista.rect.x = 0
+                else:
+                    cuarto_actual_no = 0
+                    cuarto_actual = cuartos[cuarto_actual_no]
+                    protagonista.rect.x = 0
 
         for i in range(len(monedas) - 1, -1, -1):
             if protagonista.rect.colliderect(monedas[i].rect):
                 del monedas[i]
                 puntuacion += 1
-                text = small_font.render('Score = ' + str(puntuacion), True, VERDE)
-                textRect = text.get_rect()
-                textRect.center = (100, 40)
                 # --- Dibujamos ---
         pantalla.fill(BLANCO)
+        text = small_font.render('User = ' + str('usuario_actual'), True, ROJO)
+        textRect = text.get_rect()
+        textRect.center = (500, 40)
 
         desplazarsprites.draw(pantalla)
         cuarto_actual.pared_lista.draw(pantalla)
-        text = small_font.render('Puntuacion = ' + str(puntuacion), True, VERDE)
+        text = small2_font.render('Puntuacion = ' + str(puntuacion), True, VERDE)
         textRect = text.get_rect()
-        textRect.center = (100, 40)
+        textRect.center = (100, 10)
+        pantalla.blit(text, textRect)
+        text = small2_font.render('User = ' + str('usuario_actual'), True, ROJO)
+        textRect = text.get_rect()
+        textRect.center = (500, 10)
         pantalla.blit(text, textRect)
         for moneda in monedas:
             moneda.draw()
         pygame.display.flip()
 
         reloj.tick(60)
+def inicializar_datos():
+    puntuacion = 0
+    text = small2_font.render('Puntuacion = ' + str(puntuacion), True, VERDE)
+    textRect = text.get_rect()
+    textRect.center = (100, 10)
+    pantalla.blit(text, textRect)
 
 
 if __name__ == "__main__":
