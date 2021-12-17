@@ -9,7 +9,6 @@ Cambios desde el ultimo Dia:
     -Puedes cojer monedas por el camino del laberinto
     -Te aparece el numero de monedas acumuladas
     -Si teminas el laberinto con menos de 5 monedas, vuelves al inicio
-    -Mensaje de Despedida cunado le das a salir con el juego iniciado
 '''
 NEGRO = (0, 0, 0)
 BLANCO = (255, 255, 255)
@@ -19,20 +18,19 @@ ROJO = (255, 0, 0)
 VIOLETA = (255, 0, 255)
 
 pygame.init()
-
+nombre_user = ''
 # Definicion de tipo de letra
 small_font = pygame.font.SysFont('Corbel', 35)
 small2_font = pygame.font.SysFont('Corbel', 20)
 
 pantalla = pygame.display.set_mode([800, 600])
 
-pygame.display.set_caption('Laberinto ')
+pygame.display.set_caption('Laberinto Principal')
 
-bienvenida = small_font.render('Bienvenido', True, white)
 salir = small_font.render('Salir', True, white)
 jugar = small_font.render('Jugar', True, white)
-adios = small_font.render('Hasta luego', True, white)
-clickSalir = small_font.render('Clicke para salir', True, white)
+nombre = small_font.render('Introduce tu nombre', True, white)
+siguiente = small_font.render('Siguiente', True, white)
 
 
 def cargarImages():
@@ -136,49 +134,6 @@ class Protagonista(pygame.sprite.Sprite):  # Funcion constructora del cuadrado c
                 self.rect.top = bloque.rect.bottom
 
 
-class Enemigo(pygame.sprite.Sprite):  # Funcion constructora del cuadrado con movimiento
-
-    # Velocidades iniciales
-    cambio_x = 0
-    cambio_y = 0
-
-    def __init__(self, x, y):
-
-        super().__init__()
-        img = pygame.image.load('img/enemigo/1.png')
-        self.image = pygame.transform.scale(img, (20, 40))
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.contador = 0  #Contador para dsitancia
-
-    def cambiovelocidad(self, x, y):  # Cambia de velocidad con pulsar el teclado
-        self.cambio_x += x
-        self.cambio_y += y
-
-    def dibujar(self):
-        self.rect.topleft = (self.x, self.y)
-
-        pantalla.blit(self.image, self.rect)
-    def mover(self):
-        # desplazamiento Horizontal
-        distancia = 20
-        velocidad = 8
-
-        if self.contador >= 0 and self.contador <= distancia:
-            self.rect.x += velocidad
-        elif self.contador >= distancia and self.contador <= distancia * 2:
-            self.rect.x -= velocidad
-        else:
-            self.contador = 0
-
-        self.contador += 1
-        self.rect.x += self.cambio_x
-
-
-
-
-
 
 class Cuarto():
     # Cada cuarto tiene una lista de paredes, y de los sprites enemigos.
@@ -268,15 +223,15 @@ class Cuarto3(Cuarto):
                    [780, 350, 20, 250, VIOLETA],  # raya de abajo derecha
                    [20, 0, 760, 20, VIOLETA],  # Raya de arriba de la pantalla
                    [20, 580, 760, 20, ROJO],  # 15
-                   [160, 500, 200, 20, NEGRO],  # 15
-                   [250, 85, 20, 200, NEGRO],  # 15
-                   [160, 500, 200, 20, NEGRO],  # 15
-                   [160, 500, 200, 20, NEGRO]  # Raya de abajo de la pantalla
+                   [160, 500, 200, 20, AZUL]  # Raya de abajo de la pantalla
                    ]
         # x, y, largo, alto
         for item in paredes:
             pared = Pared(item[0], item[1], item[2], item[3], item[4])
             self.pared_lista.add(pared)
+        caldero = Caldero(500, 500)
+        caldero.draw()
+        pygame.display.update()
 
 
 def main():
@@ -298,7 +253,7 @@ def main():
                 if display_width / 2 - 175 <= mouse[0] <= display_width / 2 + 140 and display_height / 2 <= mouse[
                     1] <= display_width / 2 + 40:
                     print('ha seleccionado jugar')
-                    lab1()
+                    introducir_nombre()
 
         # (x,y)
         # La variable es una tupla
@@ -311,6 +266,7 @@ def main():
         # Vuelve al color original
         else:
             rect1 = pygame.draw.rect(pantalla, color_dark, [display_width / 2, display_height / 2, 140, 40])
+            rect2 = pygame.draw.rect(pantalla, color_dark, [display_width / 2 - 175, display_height / 2, 140, 40])
         # Cambia a un color mas claro si lo pasas por encima ---> Jugar
         if display_width / 2 - 175 <= mouse[0] <= display_width / 2 + 140 and display_height / 2 <= mouse[
             1] <= display_height / 2 + 40:
@@ -318,21 +274,62 @@ def main():
 
         # Vuelve al color original
         else:
+            rect1 = pygame.draw.rect(pantalla, color_dark, [display_width / 2, display_height / 2, 140, 40])
             rect2 = pygame.draw.rect(pantalla, color_dark, [display_width / 2 - 175, display_height / 2, 140, 40])
 
             # superimposing the text onto our button
-        pantalla.blit(bienvenida, (display_width / 2 -100, display_height / 2-200))
         pantalla.blit(salir, (display_width / 2 + 50, display_height / 2))
         pantalla.blit(jugar, (display_width / 2 - 150, display_height / 2))
         # updates the frames of the game
         pygame.display.update()
 
+def introducir_nombre():
+    while True:
 
+        for ev in pygame.event.get():
+
+            if ev.type == pygame.QUIT:
+                pygame.quit()
+
+                # checks if a mouse is clicked
+            if ev.type == pygame.MOUSEBUTTONDOWN:
+
+                # if the mouse is clicked on the
+                # button the game is terminated
+                if display_width / 2 - 175 <= mouse[0] <= display_width / 2 -25 and display_height / 2 + 100 <= mouse[
+                    1] <= display_width / 2 -60:
+                    print('ha seleccionado jugar')
+                    lab1()
+
+        # (x,y)
+        # La variable es una tupla
+        mouse = pygame.mouse.get_pos()
+
+        # Cambia a un color mas claro si lo pasas por encima ---> Salir
+        if display_width / 2 - 175 <= mouse[0] <= display_width / 2 -25 and display_height / 2 + 100 <= mouse[
+            1] <= display_height / 2 -60:
+
+            rect_boton = pygame.draw.rect(pantalla, color_light,
+                                     [display_width / 2 - 175, display_height / 2 + 100, 140, 40])
+        # Vuelve al color original
+        else:
+            rect_titulo = pygame.draw.rect(pantalla, color_dark,
+                                           [display_width / 2 - 175, display_height / 2 - 100, 140, 40])
+            rect_nombre = pygame.draw.rect(pantalla, color_dark,
+                                     [display_width / 2 - 175, display_height / 2 - 100, 140, 40])
+            rect_boton = pygame.draw.rect(pantalla, color_dark,
+                                     [display_width / 2 - 175, display_height / 2 + 100 - 100, 140, 40])
+
+
+            # superimposing the text onto our button
+        pantalla.blit(nombre, (display_width / 2 -165, display_height / 2 - 90))
+        pantalla.blit(siguiente, (display_width / 2 - 165, display_height / 2 -90))
+        # updates the frames of the game
+        pygame.display.update()
+
+ 
 def lab1():
     protagonista = Protagonista(50, 50)  # Creamos un protagonista
-    enemingo1 = Enemigo(50,150)
-    enemigos_lista = pygame.sprite.Group()
-    enemigos_lista.add(enemingo1)
     monedas = [
         Moneda(25, 150), Moneda(260, 250), Moneda(350, 23), Moneda(500, 40), Moneda(500, 250), Moneda(400, 400),
         Moneda(700, 300), Moneda(275, 450),
@@ -342,7 +339,6 @@ def lab1():
 
     desplazarsprites = pygame.sprite.Group()
     desplazarsprites.add(protagonista)
-    desplazarsprites.add(enemingo1)
     cuartos = []
     cuarto = Cuarto1()
     cuartos.append(cuarto)
@@ -353,15 +349,8 @@ def lab1():
     cuarto_actual_no = 0
     cuarto_actual = cuartos[cuarto_actual_no]
     puntuacion = 0
-    vida = 10
 
     reloj = pygame.time.Clock()
-
-
-    #Movimiento enemigo 2
-    enemingo1.mover()
-
-
 
     hecho = False
     while not hecho:
@@ -370,7 +359,6 @@ def lab1():
 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
-                salida()
                 hecho = True
 
             if evento.type == pygame.KEYDOWN:
@@ -406,7 +394,6 @@ def lab1():
                 for i in range(len(monedas) - 1, -1, -1):
                     del monedas[i]
 
-
             else:
                 cuarto_actual_no = 0
                 cuarto_actual = cuartos[cuarto_actual_no]
@@ -429,17 +416,12 @@ def lab1():
         textRect = text.get_rect()
         textRect.center = (100, 10)
         pantalla.blit(text, textRect)
-        text = small2_font.render('Vida = ' + str(vida), True, VERDE)
-        textRect = text.get_rect()
-        textRect.center = (300, 10)
-        pantalla.blit(text, textRect)
         text = small2_font.render('User = ' + str('usuario_actual'), True, ROJO)
         textRect = text.get_rect()
         textRect.center = (500, 10)
         pantalla.blit(text, textRect)
         for moneda in monedas:
             moneda.draw()
-
         pygame.display.flip()
 
         reloj.tick(60)
@@ -451,41 +433,7 @@ def lab1():
 
 
 
-def salida():
-    pantalla.fill(VERDE)
 
-    while True:
-
-        for ev in pygame.event.get():
-            if ev.type == pygame.QUIT:
-                pygame.quit()
-
-            if ev.type == pygame.MOUSEBUTTONDOWN:
-
-                # if the mouse is clicked on the
-                # button the game is terminated
-                if display_width / 2 +25 <= mouse[0] <= display_width / 2 + 200 and display_height / 2 <= mouse[
-                    1] <= display_width / 2 + 40:
-                    pygame.quit()
-
-        # (x,y)
-        # La variable es una tupla
-        mouse = pygame.mouse.get_pos()
-
-        # Cambia a un color mas claro si lo pasas por encima ---> Salir
-        if display_width / 2-100 <= mouse[0] <= display_width / 2 + 300 and display_height / 2 <= mouse[
-            1] <= display_height / 2 + 40:
-            rect1 = pygame.draw.rect(pantalla, color_light, [display_width / 2-100, display_height / 2, 300, 40])
-        # Vuelve al color original
-        else:
-            rect1 = pygame.draw.rect(pantalla, color_dark, [display_width / 2-100, display_height / 2, 300, 40])
-
-
-            # superimposing the text onto our button
-        pantalla.blit(adios, (display_width / 2 -20, display_height / 2 - 150))
-        pantalla.blit(clickSalir, (display_width / 2 - 75, display_height / 2 +5))
-        # updates the frames of the game
-        pygame.display.update()
 def inicializar_datos():
     puntuacion = 0
     text = small2_font.render('Puntuacion = ' + str(puntuacion), True, VERDE)

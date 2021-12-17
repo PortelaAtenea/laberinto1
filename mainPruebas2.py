@@ -18,6 +18,8 @@ VERDE = (0, 255, 0)
 ROJO = (255, 0, 0)
 VIOLETA = (255, 0, 255)
 
+GRAVITY = 0.75
+
 pygame.init()
 
 # Definicion de tipo de letra
@@ -26,9 +28,8 @@ small2_font = pygame.font.SysFont('Corbel', 20)
 
 pantalla = pygame.display.set_mode([800, 600])
 
-pygame.display.set_caption('Laberinto ')
+pygame.display.set_caption('Laberinto Principal')
 
-bienvenida = small_font.render('Bienvenido', True, white)
 salir = small_font.render('Salir', True, white)
 jugar = small_font.render('Jugar', True, white)
 adios = small_font.render('Hasta luego', True, white)
@@ -102,7 +103,6 @@ class Protagonista(pygame.sprite.Sprite):  # Funcion constructora del cuadrado c
         self.rect.x = x
         self.rect.y = y
         self.vel_y = 0
-        self.jumped = False
 
     def cambiovelocidad(self, x, y):  # Cambia de velocidad con pulsar el teclado
         self.cambio_x += x
@@ -136,48 +136,79 @@ class Protagonista(pygame.sprite.Sprite):  # Funcion constructora del cuadrado c
                 self.rect.top = bloque.rect.bottom
 
 
-class Enemigo(pygame.sprite.Sprite):  # Funcion constructora del cuadrado con movimiento
-
-    # Velocidades iniciales
-    cambio_x = 0
-    cambio_y = 0
-
-    def __init__(self, x, y):
-
-        super().__init__()
-        img = pygame.image.load('img/enemigo/1.png')
+class Soldier(pygame.sprite.Sprite):
+    def __init__(self, char_type, x, y, speed):
+        pygame.sprite.Sprite.__init__(self)
+        img = pygame.image.load('img/mago/0.png')
         self.image = pygame.transform.scale(img, (20, 40))
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.contador = 0  #Contador para dsitancia
-
-    def cambiovelocidad(self, x, y):  # Cambia de velocidad con pulsar el teclado
-        self.cambio_x += x
-        self.cambio_y += y
-
-    def dibujar(self):
-        self.rect.topleft = (self.x, self.y)
-
-        pantalla.blit(self.image, self.rect)
-    def mover(self):
-        # desplazamiento Horizontal
-        distancia = 20
-        velocidad = 8
-
-        if self.contador >= 0 and self.contador <= distancia:
-            self.rect.x += velocidad
-        elif self.contador >= distancia and self.contador <= distancia * 2:
-            self.rect.x -= velocidad
-        else:
-            self.contador = 0
-
-        self.contador += 1
-        self.rect.x += self.cambio_x
+        self.alive = True
+        self.char_type = char_type
+        self.speed = speed
+        self.direction = 1
+        self.vel_y = 0
+        self.jump = False
+        self.in_air = True
+        self.flip = False
+        self.animation_list = []
+        self.frame_index = 0
+        self.action = 0
+        self.update_time = pygame.time.get_ticks()
 
 
 
+        self.image = self.animation_list[self.action][self.frame_index]
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
 
+    def move(self, moving_left, moving_right):
+        # reset movement variables
+        dx = 0
+        dy = 0
+
+        # assign movement variables if moving left or right
+        if moving_left:
+            dx = -self.speed
+            self.flip = True
+            self.direction = -1
+        if moving_right:
+            dx = self.speed
+            self.flip = False
+            self.direction = 1
+
+        # jump
+        if self.jump == True and self.in_air == False:
+            self.vel_y = -11
+            self.jump = False
+            self.in_air = True
+
+        # apply gravity
+        self.vel_y += GRAVITY
+        if self.vel_y > 10:
+            self.vel_y
+        dy += self.vel_y
+
+        # check collision with floor
+        if self.rect.bottom + dy > 300:
+            dy = 300 - self.rect.bottom
+            self.in_air = False
+
+        # update rectangle position
+        self.rect.x += dx
+        self.rect.y += dy
+
+
+
+    def update_action(self, new_action):
+        # check if the new action is different to the previous one
+        if new_action != self.action:
+            self.action = new_action
+            # update the animation settings
+            self.frame_index = 0
+            self.update_time = pygame.time.get_ticks()
+
+    def draw(self):
+        pantalla.blit(pygame.transform.flip(self.image, self.flip, False), self.rect)
 
 
 class Cuarto():
@@ -256,7 +287,6 @@ class Cuarto2(Cuarto):
             pared = Pared(item[0], item[1], item[2], item[3], item[4])
             self.pared_lista.add(pared)
 
-
 class Cuarto3(Cuarto):
 
     def __init__(self):
@@ -277,6 +307,9 @@ class Cuarto3(Cuarto):
         for item in paredes:
             pared = Pared(item[0], item[1], item[2], item[3], item[4])
             self.pared_lista.add(pared)
+        mago = Soldier('player', 200, 200, 3, 5)
+
+
 
 
 def main():
@@ -311,6 +344,7 @@ def main():
         # Vuelve al color original
         else:
             rect1 = pygame.draw.rect(pantalla, color_dark, [display_width / 2, display_height / 2, 140, 40])
+            rect2 = pygame.draw.rect(pantalla, color_dark, [display_width / 2 - 175, display_height / 2, 140, 40])
         # Cambia a un color mas claro si lo pasas por encima ---> Jugar
         if display_width / 2 - 175 <= mouse[0] <= display_width / 2 + 140 and display_height / 2 <= mouse[
             1] <= display_height / 2 + 40:
@@ -318,10 +352,10 @@ def main():
 
         # Vuelve al color original
         else:
+            rect1 = pygame.draw.rect(pantalla, color_dark, [display_width / 2, display_height / 2, 140, 40])
             rect2 = pygame.draw.rect(pantalla, color_dark, [display_width / 2 - 175, display_height / 2, 140, 40])
 
             # superimposing the text onto our button
-        pantalla.blit(bienvenida, (display_width / 2 -100, display_height / 2-200))
         pantalla.blit(salir, (display_width / 2 + 50, display_height / 2))
         pantalla.blit(jugar, (display_width / 2 - 150, display_height / 2))
         # updates the frames of the game
@@ -330,9 +364,6 @@ def main():
 
 def lab1():
     protagonista = Protagonista(50, 50)  # Creamos un protagonista
-    enemingo1 = Enemigo(50,150)
-    enemigos_lista = pygame.sprite.Group()
-    enemigos_lista.add(enemingo1)
     monedas = [
         Moneda(25, 150), Moneda(260, 250), Moneda(350, 23), Moneda(500, 40), Moneda(500, 250), Moneda(400, 400),
         Moneda(700, 300), Moneda(275, 450),
@@ -342,7 +373,6 @@ def lab1():
 
     desplazarsprites = pygame.sprite.Group()
     desplazarsprites.add(protagonista)
-    desplazarsprites.add(enemingo1)
     cuartos = []
     cuarto = Cuarto1()
     cuartos.append(cuarto)
@@ -353,15 +383,8 @@ def lab1():
     cuarto_actual_no = 0
     cuarto_actual = cuartos[cuarto_actual_no]
     puntuacion = 0
-    vida = 10
 
     reloj = pygame.time.Clock()
-
-
-    #Movimiento enemigo 2
-    enemingo1.mover()
-
-
 
     hecho = False
     while not hecho:
@@ -400,14 +423,13 @@ def lab1():
         if protagonista.rect.x > 801:  # se mueve hacia la derecha
             # Comprobar si la puntuacion es mayor a 5
             if puntuacion > 4:
-                cuarto_actual_no = 2
-                cuarto_actual = cuartos[cuarto_actual_no]
-                protagonista.rect.x = 0
                 for i in range(len(monedas) - 1, -1, -1):
                     del monedas[i]
+                del protagonista
 
 
-            else:
+
+        else:
                 cuarto_actual_no = 0
                 cuarto_actual = cuartos[cuarto_actual_no]
                 protagonista.rect.x = 25
@@ -429,22 +451,77 @@ def lab1():
         textRect = text.get_rect()
         textRect.center = (100, 10)
         pantalla.blit(text, textRect)
-        text = small2_font.render('Vida = ' + str(vida), True, VERDE)
-        textRect = text.get_rect()
-        textRect.center = (300, 10)
-        pantalla.blit(text, textRect)
         text = small2_font.render('User = ' + str('usuario_actual'), True, ROJO)
         textRect = text.get_rect()
         textRect.center = (500, 10)
         pantalla.blit(text, textRect)
         for moneda in monedas:
             moneda.draw()
-
         pygame.display.flip()
 
         reloj.tick(60)
 
 
+
+
+
+
+def lab2():
+    caldero = Caldero(450,450)
+    desplazarsprites = pygame.sprite.Group()
+    cuartos = []
+    cuarto = Cuarto3()
+    cuartos.append(cuarto)
+    cuarto_actual_no = 2
+    cuarto_actual = cuartos[cuarto_actual_no]
+    puntuacion = 0
+
+    reloj = pygame.time.Clock()
+
+    hecho = False
+    while not hecho:
+
+        # --- Procesamiento de Eventos ---
+
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                salida()
+                hecho = True
+
+
+        # --- Lógica del Juego ---
+
+        fin = False
+        if fin:  # Acaba la prueba
+            # Comprobar si la puntuacion es mayor a "La que sea"
+            if puntuacion > 0:
+                #pasa ala siguiente prueba
+                print('se paso la fase')
+
+            else:
+                #El juego vuelve a empezar
+                print('No se paso al fase')
+
+                # --- Dibujamos ---
+        pantalla.fill(BLANCO)
+
+        desplazarsprites.draw(pantalla)
+        cuarto_actual.pared_lista.draw(pantalla)
+        text = small2_font.render('Puntuacion = ' + str(puntuacion), True, VERDE)
+        textRect = text.get_rect()
+        textRect.center = (100, 10)
+        pantalla.blit(text, textRect)
+        text = small2_font.render('User = ' + str('usuario_actual'), True, ROJO)
+        textRect = text.get_rect()
+        textRect.center = (500, 10)
+        pantalla.blit(text, textRect)
+        text = small2_font.render('Fase en desarrollo', True, ROJO)
+        textRect = text.get_rect()
+        textRect.center = (500, 500)
+        pantalla.blit(text, textRect)
+        pygame.display.flip()
+
+        reloj.tick(60)
 
 
 
