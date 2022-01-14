@@ -243,11 +243,11 @@ class Cuarto1(Cuarto):
                    [240, 140, 20, 300, AZUL],  # 5
                    [0, 240, 150, 20, AZUL],  # 6
                    [150, 240, 20, 100, AZUL],  # 7
-                   [70, 340, 100, 20, AZUL],  # 8
+                   [70, 340, 100, 20, NEGRO],  # 8
                    [70, 420, 170, 20, AZUL],  # 9
                    [160, 420, 20, 200, AZUL],  # 10
                    [0, 500, 100, 20, AZUL],  # 11
-                   [450, 160, 400, 20, AZUL],  # 12
+                   [450, 160, 400, 20, NEGRO],  # 12
                    [450, 160, 20, 100, AZUL],  # 13
                    [350, 240, 100, 20, AZUL],  # 14
                    [350, 240, 20, 200, AZUL],  # 15
@@ -307,7 +307,6 @@ class Cuarto3(Cuarto):
         for item in paredes:
             pared = Pared(item[0], item[1], item[2], item[3], item[4])
             self.pared_lista.add(pared)
-        mago = Soldier('player', 200, 200, 3, 5)
 
 
 

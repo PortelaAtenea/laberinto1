@@ -1,6 +1,7 @@
 import pygame
 from pygame.transform import scale
 
+import var
 from var import *
 
 
@@ -43,7 +44,7 @@ def cargarImages():
 
 class Moneda:
     def __init__(self, x, y):
-        img = pygame.image.load('img/monedas/moneda.png')
+        img = pygame.image.load('img/monedas/pocion-magica.png')
         scale = 0.05
         self.x = x
         self.y = y
@@ -59,7 +60,7 @@ class Moneda:
 
 class Caldero:
     def __init__(self, x, y):
-        img = pygame.image.load('img/monedas/moneda.png')
+        img = pygame.image.load('img/monedas/pocion-magica.png')
         scale = 0.05
         self.x = x
         self.y = y
@@ -145,12 +146,33 @@ class Enemigo(pygame.sprite.Sprite):  # Funcion constructora del cuadrado con mo
     def __init__(self, x, y):
 
         super().__init__()
-        img = pygame.image.load('img/enemigo/1.png')
+        img = pygame.image.load('img/enemigo/monster.png')
         self.image = pygame.transform.scale(img, (20, 40))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.velocidad_x = 5
+        self.velocidad_y = 5
         self.contador = 0  #Contador para dsitancia
+
+    def update(self):
+        self.rect.x += self.velocidad_x
+        self.rect.y += self.velocidad_y
+        # Limita el margen derecho
+        if self.rect.right > var.display_width:
+            self.rect.right = var.display_width
+
+        # Limita el margen izquierdo
+        if self.rect.left < 0:
+            self.rect.left = 0
+
+        # Limita el margen inferior
+        if self.rect.bottom > var.display_height:
+            self.rect.bottom = var.display_height
+
+        # Limita el margen superior
+        if self.rect.top < 0:
+            self.rect.top = 0
 
     def cambiovelocidad(self, x, y):  # Cambia de velocidad con pulsar el teclado
         self.cambio_x += x
@@ -217,6 +239,7 @@ class Cuarto1(Cuarto):
                    [160, 420, 20, 200, AZUL],  # 10
                    [0, 500, 100, 20, AZUL],  # 11
                    [450, 160, 400, 20, AZUL],  # 12
+                   [600, 0, 20, 100, AZUL],  # 12
                    [450, 160, 20, 100, AZUL],  # 13
                    [350, 240, 100, 20, AZUL],  # 14
                    [350, 240, 20, 200, AZUL],  # 15
@@ -334,9 +357,15 @@ def lab1():
     enemigos_lista = pygame.sprite.Group()
     enemigos_lista.add(enemingo1)
     monedas = [
-        Moneda(25, 150), Moneda(260, 250), Moneda(350, 23), Moneda(500, 40), Moneda(500, 250), Moneda(400, 400),
-        Moneda(700, 300), Moneda(275, 450),
-        Moneda(100, 100), Moneda(600, 100)
+
+        Moneda(250, 150),
+         Moneda(550, 40),
+        Moneda(500, 250), Moneda(400, 400),
+        Moneda(700, 300), Moneda(200, 450),
+         Moneda(700, 75),
+
+        Moneda(200, 180),Moneda(170, 100),
+        Moneda(100, 290),
 
     ]  # hay 10 monedas
 
@@ -359,7 +388,7 @@ def lab1():
 
 
     #Movimiento enemigo 2
-    enemingo1.mover()
+    enemingo1.update()
 
 
 
@@ -403,6 +432,7 @@ def lab1():
                 cuarto_actual_no = 2
                 cuarto_actual = cuartos[cuarto_actual_no]
                 protagonista.rect.x = 0
+                protagonista.rect.y = 700
                 for i in range(len(monedas) - 1, -1, -1):
                     del monedas[i]
 
@@ -417,6 +447,9 @@ def lab1():
             if protagonista.rect.colliderect(monedas[i].rect):
                 del monedas[i]
                 puntuacion += 1
+        if protagonista.rect.colliderect(enemingo1.rect):
+            while protagonista.rect.colliderect((enemingo1.rect)):
+                vida -= 1
                 # --- Dibujamos ---
         pantalla.fill(BLANCO)
         text = small_font.render('User = ' + str('usuario_actual'), True, ROJO) #APareceria el nombre del usuario
