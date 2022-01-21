@@ -1,3 +1,5 @@
+from datetime import time
+
 import pygame
 from pygame.transform import scale
 
@@ -18,7 +20,7 @@ AZUL = (0, 0, 255)
 VERDE = (0, 255, 0)
 ROJO = (255, 0, 0)
 VIOLETA = (255, 0, 255)
-
+tiempo =round((pygame.time.get_ticks()/1000),0)
 pygame.init()
 
 # Definicion de tipo de letra
@@ -35,6 +37,7 @@ jugar = small_font.render('Jugar', True, white)
 adios = small_font.render('Hasta luego', True, white)
 clickSalir = small_font.render('Clicke para salir', True, white)
 
+paredes = []
 
 def cargarImages():
     img = []
@@ -76,16 +79,15 @@ class Caldero:
 
 class Pared(pygame.sprite.Sprite):
 
-    def __init__(self, x, y, largo, alto, color):  # Funcion contructora de una pared de 4 lados
-
-        super().__init__()
-
-        self.image = pygame.Surface([largo, alto])
-        self.image.fill(color)
+    def __init__(self, pos):
+        paredes.append(self)
+        self.image = pygame.Surface([pos[0], pos[1]])
+        self.image.fill(ROJO)
 
         self.rect = self.image.get_rect()
-        self.rect.y = y
-        self.rect.x = x
+        self.rect.y = pos[0]
+        self.rect.x = pos[1]
+
 
 
 class Protagonista(pygame.sprite.Sprite):  # Funcion constructora del cuadrado con movimiento
@@ -219,87 +221,120 @@ class Cuarto1(Cuarto):
     def __init__(self):
         super().__init__()
         # Crear las paredes. (x_pos, y_pos, ancho, alto)
+        #well, well, look who´s inside again
+        #scream at my refleaction, ¿what the hell is wrong with me?
 
         # Esta es la lista de las paredes. Cada una se especifica de la forma [x, y, largo, alto]
-        paredes = [[0, 0, 20, 580, AZUL],
-                   [0, 350, 20, 250, AZUL],
-                   [780, 0, 20, 250, AZUL],
-                   [780, 350, 20, 250, AZUL],
-                   [20, 0, 760, 20, AZUL],
-                   [20, 580, 760, 20, AZUL],
-                   [100, 20, 20, 60, AZUL],  # 1
-                   [100, 140, 160, 20, AZUL],  # 2
-                   [240, 80, 20, 60, AZUL],  # 3
-                   [240, 80, 210, 20, AZUL],  # 4
-                   [240, 140, 20, 300, AZUL],  # 5
-                   [0, 240, 150, 20, AZUL],  # 6
-                   [150, 240, 20, 100, AZUL],  # 7
-                   [70, 340, 100, 20, AZUL],  # 8
-                   [70, 420, 170, 20, AZUL],  # 9
-                   [160, 420, 20, 200, AZUL],  # 10
-                   [0, 500, 100, 20, AZUL],  # 11
-                   [450, 160, 400, 20, AZUL],  # 12
-                   [600, 0, 20, 100, AZUL],  # 12
-                   [450, 160, 20, 100, AZUL],  # 13
-                   [350, 240, 100, 20, AZUL],  # 14
-                   [350, 240, 20, 200, AZUL],  # 15
-                   [160, 500, 200, 20, AZUL],  # 16
-                   [350, 80, 20, 100, AZUL],  # 17
-                   [450, 350, 400, 20, AZUL],  # 18
-                   [550, 260, 20, 260, AZUL],  # 19
-                   [650, 160, 20, 120, AZUL],  # 20
-                   [650, 450, 200, 20, AZUL],  # 21
-                   [450, 450, 20, 200, AZUL],  # 22
-                   [350, 80, 20, 100, AZUL],  # 17
+        level = [
+            "WWWWWWWWWWWWWWWWWWWW",
+            "W                  W",
+            "W         WWWWWW   W",
+            "W   WWWWWWWWWWWW   W",
+            "W   W        WWWW  W",
+            "W WWW  WWWW        W",
+            "W   W     W W      W",
+            "W   W     W   WWW WW",
+            "W   WWW WWW   W W  W",
+            "W     W   W   W W  W",
+            "WWW   W   WWWWW W  W",
+            "W W      WW        W",
+            "W W   WWWW   WWW   W",
+            "W     W    E   W   W",
+            "WWWWWWWWWWWWWWWWWWWW",
+        ]
+        x = y = 0
+        al = 10
+        an = 10
 
-                   ]
-
-        # Iteramos a través de la lista. Creamos la pared y la añadimos a la lista.
-        for item in paredes:
-            pared = Pared(item[0], item[1], item[2], item[3], item[4])
-            self.pared_lista.add(pared)
+        for row in level:
+            for col in row:
+                if col == "W":
+                    Pared((x, y))
+                    self.pared_lista.add(row)
+                if col == "E":
+                    end_rect = pygame.Rect(x, y, 16, 16)
+                    self.pared_lista.add(row)
+                x += 16
+            y += 16
+            x = 0
 
 
 class Cuarto2(Cuarto):
-    """Esto crea todas las paredes del cuarto 2"""
 
     def __init__(self):
         super().__init__()
+        # Crear las paredes. (x_pos, y_pos, ancho, alto)
 
-        paredes = [[0, 0, 20, 255, ROJO],
-                   [0, 350, 20, 250, ROJO],
-                   [780, 0, 20, 250, ROJO],
-                   [780, 350, 20, 250, ROJO],
-                   [20, 0, 760, 20, ROJO],
-                   [20, 580, 760, 20, ROJO],  # 15
-                   [160, 500, 200, 20, AZUL]
-                   ]
+        # Esta es la lista de las paredes. Cada una se especifica de la forma [x, y, largo, alto]
+        level = [
+            "WWWWWWWWWWWWWWWWWWWW",
+            "W                  W",
+            "W         WWWWWW   W",
+            "W   WWWWWWWWWWWW   W",
+            "W   W        WWWW  W",
+            "W WWW  WWWW        W",
+            "W   W     W W      W",
+            "W   W     W   WWW WW",
+            "W   WWW WWW   W W  W",
+            "W     W   W   W W  W",
+            "WWW   W   WWWWW W  W",
+            "W W      WW        W",
+            "W W   WWWW   WWW   W",
+            "W     W    E   W   W",
+            "WWWWWWWWWWWWWWWWWWWW",
+        ]
+        x = y = 0
+        al = 10
+        an = 10
 
-        for item in paredes:
-            pared = Pared(item[0], item[1], item[2], item[3], item[4])
-            self.pared_lista.add(pared)
+        for row in level:
+            for col in row:
+                if col == "W":
+                    Pared((x, y))
+                if col == "E":
+                    end_rect = pygame.Rect(x, y, 16, 16)
+                x += 16
+            y += 16
+            x = 0
 
 
 class Cuarto3(Cuarto):
 
     def __init__(self):
         super().__init__()
-        # El ancho de las rayas es 20
-        paredes = [[0, 0, 20, 255, VIOLETA],  # raya de arriba izquierda
-                   [0, 350, 20, 250, VIOLETA],  # raya de abajo izquierda
-                   [780, 0, 20, 250, VIOLETA],  # raya de arriba derecha
-                   [780, 350, 20, 250, VIOLETA],  # raya de abajo derecha
-                   [20, 0, 760, 20, VIOLETA],  # Raya de arriba de la pantalla
-                   [20, 580, 760, 20, ROJO],  # 15
-                   [160, 500, 200, 20, NEGRO],  # 15
-                   [250, 85, 20, 200, NEGRO],  # 15
-                   [160, 500, 200, 20, NEGRO],  # 15
-                   [160, 500, 200, 20, NEGRO]  # Raya de abajo de la pantalla
-                   ]
-        # x, y, largo, alto
-        for item in paredes:
-            pared = Pared(item[0], item[1], item[2], item[3], item[4])
-            self.pared_lista.add(pared)
+        # Crear las paredes. (x_pos, y_pos, ancho, alto)
+
+        # Esta es la lista de las paredes. Cada una se especifica de la forma [x, y, largo, alto]
+        level = [
+            "WWWWWWWWWWWWWWWWWWWW",
+            "W                  W",
+            "W         WWWWWW   W",
+            "W   WWWWWWWWWWWW   W",
+            "W   W        WWWW  W",
+            "W WWW  WWWW        W",
+            "W   W     W W      W",
+            "W   W     W   WWW WW",
+            "W   WWW WWW   W W  W",
+            "W     W   W   W W  W",
+            "WWW   W   WWWWW W  W",
+            "W W      WW        W",
+            "W W   WWWW   WWW   W",
+            "W     W    E   W   W",
+            "WWWWWWWWWWWWWWWWWWWW",
+        ]
+        x = y = 0
+        al = 10
+        an = 10
+
+        for row in level:
+            for col in row:
+                if col == "W":
+                    Pared((x, y))
+                if col == "E":
+                    end_rect = pygame.Rect(x, y, 16, 16)
+                x += 16
+            y += 16
+            x = 0
 
 
 def main():
@@ -386,7 +421,6 @@ def lab1():
 
     reloj = pygame.time.Clock()
 
-
     #Movimiento enemigo 2
     enemingo1.update()
 
@@ -401,7 +435,8 @@ def lab1():
             if evento.type == pygame.QUIT:
                 salida()
                 hecho = True
-
+            if tiempo == 10000:
+                hecho = True
             if evento.type == pygame.KEYDOWN:
                 if evento.key == pygame.K_LEFT:
                     protagonista.cambiovelocidad(-5, 0)
@@ -456,7 +491,11 @@ def lab1():
         textRect = text.get_rect()
         textRect.center = (500, 40)
 
+
         desplazarsprites.draw(pantalla)
+        tiempo = round((pygame.time.get_ticks() / 1000), 0)
+        if (tiempo == 100.0):
+            pygame.quit()
         cuarto_actual.pared_lista.draw(pantalla)
         text = small2_font.render('Puntuacion = ' + str(puntuacion), True, VERDE)
         textRect = text.get_rect()
@@ -470,6 +509,10 @@ def lab1():
         textRect = text.get_rect()
         textRect.center = (500, 10)
         pantalla.blit(text, textRect)
+        text2 = small2_font.render('tiempo = ' + str(tiempo), True, ROJO)
+        textRect2 = text2.get_rect()
+        textRect2.center = (700, 10)
+        pantalla.blit(text2, textRect2)
         for moneda in monedas:
             moneda.draw()
 
@@ -488,37 +531,17 @@ def salida():
     pantalla.fill(VERDE)
 
     while True:
-
+        tiempo = round((pygame.time.get_ticks() / 1000), 0)
+        if (tiempo == 10.0):
+            pygame.quit()
         for ev in pygame.event.get():
             if ev.type == pygame.QUIT:
                 pygame.quit()
 
-            if ev.type == pygame.MOUSEBUTTONDOWN:
-
-                # if the mouse is clicked on the
-                # button the game is terminated
-                if display_width / 2 +25 <= mouse[0] <= display_width / 2 + 200 and display_height / 2 <= mouse[
-                    1] <= display_width / 2 + 40:
-                    pygame.quit()
-
-        # (x,y)
-        # La variable es una tupla
-        mouse = pygame.mouse.get_pos()
-
-        # Cambia a un color mas claro si lo pasas por encima ---> Salir
-        if display_width / 2-100 <= mouse[0] <= display_width / 2 + 300 and display_height / 2 <= mouse[
-            1] <= display_height / 2 + 40:
-            rect1 = pygame.draw.rect(pantalla, color_light, [display_width / 2-100, display_height / 2, 300, 40])
-        # Vuelve al color original
-        else:
-            rect1 = pygame.draw.rect(pantalla, color_dark, [display_width / 2-100, display_height / 2, 300, 40])
-
-
-            # superimposing the text onto our button
-        pantalla.blit(adios, (display_width / 2 -20, display_height / 2 - 150))
-        pantalla.blit(clickSalir, (display_width / 2 - 75, display_height / 2 +5))
-        # updates the frames of the game
         pygame.display.update()
+
+
+
 def inicializar_datos():
     puntuacion = 0
     text = small2_font.render('Puntuacion = ' + str(puntuacion), True, VERDE)
