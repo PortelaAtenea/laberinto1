@@ -1,5 +1,5 @@
-display_width = 700
-display_height = 700
+display_width = 1200
+display_height = 800
 
 #colores utilizados
 black = (0, 0, 0)

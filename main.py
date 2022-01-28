@@ -27,7 +27,7 @@ pygame.init()
 small_font = pygame.font.SysFont('Corbel', 35)
 small2_font = pygame.font.SysFont('Corbel', 20)
 
-pantalla = pygame.display.set_mode([800, 600])
+pantalla = pygame.display.set_mode([1200, 900])
 
 pygame.display.set_caption('Laberinto ')
 
